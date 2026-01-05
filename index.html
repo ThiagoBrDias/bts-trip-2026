@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTS Brasil 2026 - Trip Organizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --purple-dark: #1a0a2e;
+            --purple-main: #6b21a8;
+            --purple-light: #a855f7;
+            --purple-glow: #c084fc;
+            --pink-accent: #f472b6;
+            --gold: #fbbf24;
+            --bg-dark: #0f0a1a;
+            --bg-card: #1e1333;
+            --bg-card-hover: #2a1b45;
+            --text-main: #f5f3ff;
+            --text-muted: #a78bfa;
+            --success: #34d399;
+            --danger: #f87171;
+            --warning: #fbbf24;
+        }
+
+        .light {
+            --purple-dark: #f5f3ff;
+            --purple-main: #7c3aed;
+            --purple-light: #8b5cf6;
+            --purple-glow: #6b21a8;
+            --pink-accent: #ec4899;
+            --gold: #f59e0b;
+            --bg-dark: #faf5ff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f3e8ff;
+            --text-main: #1e1333;
+            --text-muted: #6b21a8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--purple-dark) 50%, var(--bg-dark) 100%);
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle, var(--purple-main) 0%, transparent 40%);
+            opacity: 0.1;
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            background: var(--purple-glow);
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Setup Screen */
+        .setup-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .setup-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--purple-light), var(--pink-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .setup-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .setup-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .setup-step {
+            margin-bottom: 25px;
+        }
+
+        .setup-step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-step-title .number {
+            width: 28px;
+            height: 28px;
+            background: var(--purple-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .setup-step p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .setup-step a {
+            color: var(--purple-light);
+            text-decoration: none;
+        }
+
+        .setup-step a:hover {
+            text-decoration: underline;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .login-logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--purple-light), var(--pink-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .login-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-subtitle span {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(52, 211, 153, 0.15);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .connection-status.connected {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--success);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+        }
+
+        .connection-status.connecting {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .user-card {
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--purple-light), var(--pink-accent));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--purple-light);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+        }
+
+        .user-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-main), var(--pink-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.8rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .login-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple-main), var(--purple-light));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--purple-main);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        /* Main App */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--purple-light), var(--pink-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .current-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 25px;
+        }
+
+        .current-user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-main), var(--pink-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-left: 5px;
+        }
+
+        .sync-indicator.syncing {
+            background: var(--warning);
+            animation: pulse 1s infinite;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--bg-card-hover);
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--purple-main);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-card);
+            padding: 10px;
+            gap: 5px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        .nav-tab i {
+            font-size: 1.2rem;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--purple-main), var(--purple-light));
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: var(--bg-card-hover);
+            color: var(--text-main);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Dashboard */
+        .countdown-card {
+            background: linear-gradient(135deg, var(--purple-main), var(--pink-accent));
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .countdown-card::before {
+            content: '💜';
+            position: absolute;
+            font-size: 8rem;
+            opacity: 0.1;
+            top: -20px;
+            right: -20px;
+        }
+
+        .countdown-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .countdown-unit {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .concert-date {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 1rem;
+        }
+
+        .concert-date i {
+            margin-right: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--purple-light);
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 1.3rem;
+        }
+
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.2); color: var(--purple-light); }
+        .stat-icon.pink { background: rgba(244, 114, 182, 0.2); color: var(--pink-accent); }
+        .stat-icon.gold { background: rgba(251, 191, 36, 0.2); color: var(--gold); }
+        .stat-icon.green { background: rgba(52, 211, 153, 0.2); color: var(--success); }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--purple-light);
+        }
+
+        /* Treasury/Cofre */
+        .treasury-goal {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .treasury-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--purple-light), var(--pink-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .treasury-target {
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple-main), var(--pink-accent));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .contribution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .contribution-card {
+            background: var(--bg-card-hover);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .contribution-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-main), var(--pink-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1rem;
+        }
+
+        .contribution-name {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .contribution-amount {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: var(--bg-card-hover);
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--purple-light);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tables/Lists */
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-card-hover);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            gap: 12px;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .transaction-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-title {
+            font-weight: 500;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        .transaction-amount.income {
+            color: var(--success);
+        }
+
+        .transaction-amount.expense {
+            color: var(--danger);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Category Icons */
+        .cat-passagem { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .cat-hotel { background: rgba(244, 114, 182, 0.2); color: var(--pink-accent); }
+        .cat-alimentacao { background: rgba(251, 191, 36, 0.2); color: var(--gold); }
+        .cat-locomocao { background: rgba(52, 211, 153, 0.2); color: var(--success); }
+        .cat-cofre { background: rgba(139, 92, 246, 0.2); color: var(--purple-light); }
+        .cat-outros { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+
+        /* Balance */
+        .balance-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .balance-card {
+            background: var(--bg-card-hover);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .balance-info {
+            flex: 1;
+        }
+
+        .balance-status {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .balance-amount {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .balance-amount.positive { color: var(--success); }
+        .balance-amount.negative { color: var(--danger); }
+        .balance-amount.neutral { color: var(--text-muted); }
+
+        /* Checklist */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-card-hover);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item.checked {
+            opacity: 0.6;
+        }
+
+        .checklist-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--purple-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .checklist-checkbox.checked {
+            background: var(--purple-main);
+            color: white;
+        }
+
+        .checklist-text {
+            flex: 1;
+        }
+
+        .checklist-text.checked {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .add-checklist-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-checklist-form input {
+            flex: 1;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 450px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease;
+            border: 1px solid var(--purple-main);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+
+        /* Settings */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--bg-card-hover);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .firebase-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: var(--bg-card-hover);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .firebase-status.connected {
+            border: 1px solid var(--success);
+        }
+
+        .firebase-status.disconnected {
+            border: 1px solid var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header-logo { font-size: 1.2rem; }
+            .countdown-value { font-size: 2rem; }
+            .treasury-amount { font-size: 2rem; }
+            .user-grid { gap: 15px; }
+            .content { padding: 15px; }
+            .nav-tab { min-width: 70px; padding: 10px; font-size: 0.75rem; }
+            .nav-tab i { font-size: 1rem; }
+            .setup-logo { font-size: 2rem; }
+            .login-logo { font-size: 2.5rem; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple-main);
+            border-radius: 4px;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .config-code {
+            background: var(--bg-dark);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="stars" id="stars"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-logo">BTS 💜 BRASIL 2026</div>
+        <div class="login-subtitle">
+            <span>방탄소년단</span> Trip Organizer
+        </div>
+
+        <div class="user-grid" id="userGrid">
+            <!-- Users will be generated here -->
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <header class="header">
+            <div class="header-left">
+                <span class="header-logo">BTS 💜 2026</span>
+                <div class="current-user" id="currentUserDisplay">
+                    <div class="current-user-avatar">🐰</div>
+                    <span id="currentUserName">ARMY</span>
+                    <div class="sync-indicator" id="syncIndicator" title="Sincronizado"></div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="logout()" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </button>
+            <button class="nav-tab" data-tab="cofre">
+                <i class="fas fa-piggy-bank"></i>
+                <span>Cofre</span>
+            </button>
+            <button class="nav-tab" data-tab="gastos">
+                <i class="fas fa-receipt"></i>
+                <span>Gastos</span>
+            </button>
+            <button class="nav-tab" data-tab="balanco">
+                <i class="fas fa-balance-scale"></i>
+                <span>Balanço</span>
+            </button>
+            <button class="nav-tab" data-tab="checklist">
+                <i class="fas fa-tasks"></i>
+                <span>Lista</span>
+            </button>
+            <button class="nav-tab" data-tab="config">
+                <i class="fas fa-cog"></i>
+                <span>Config</span>
+            </button>
+        </nav>
+
+        <main class="content">
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="tab-dashboard">
+                <div class="countdown-card">
+                    <div class="countdown-label">⭐ Contagem Regressiva para o Show ⭐</div>
+                    <div class="countdown-timer" id="countdown">
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="days">--</div>
+                            <div class="countdown-unit">dias</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="hours">--</div>
+                            <div class="countdown-unit">horas</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="minutes">--</div>
+                            <div class="countdown-unit">min</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="seconds">--</div>
+                            <div class="countdown-unit">seg</div>
+                        </div>
+                    </div>
+                    <div class="concert-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="concertDateDisplay">Defina a data nas configurações</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-piggy-bank"></i></div>
+                        <div class="stat-value" id="statCofre">R$ 0</div>
+                        <div class="stat-label">No Cofre</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pink"><i class="fas fa-shopping-bag"></i></div>
+                        <div class="stat-value" id="statGastos">R$ 0</div>
+                        <div class="stat-label">Gastos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold"><i class="fas fa-wallet"></i></div>
+                        <div class="stat-value" id="statSaldo">R$ 0</div>
+                        <div class="stat-label">Saldo</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-users"></i></div>
+                        <div class="stat-value" id="statPerCapita">R$ 0</div>
+                        <div class="stat-label">Por Pessoa</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Gastos por Categoria</h3>
+                    </div>
+                    <div id="categoryBreakdown">
+                        <!-- Category breakdown will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cofre Tab -->
+            <div class="tab-content" id="tab-cofre">
+                <div class="card">
+                    <div class="treasury-goal">
+                        <div class="treasury-amount" id="treasuryTotal">R$ 0,00</div>
+                        <div class="treasury-target">Meta: <span id="treasuryGoal">R$ 10.000,00</span></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="treasuryProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="treasury-target" id="treasuryPercentage">0% da meta alcançada</div>
+                    </div>
+
+                    <div class="contribution-grid" id="contributionGrid">
+                        <!-- Contribution cards will be generated here -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-plus-circle"></i> Novo Aporte</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Quem está aportando?</label>
+                            <select class="form-select" id="cofreUser">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valor (R$)</label>
+                            <input type="number" class="form-input" id="cofreAmount" placeholder="0,00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descrição (opcional)</label>
+                        <input type="text" class="form-input" id="cofreDescription" placeholder="Ex: Salário de janeiro">
+                    </div>
+                    <button class="btn btn-primary" onclick="addContribution()">
+                        <i class="fas fa-plus"></i> Adicionar Aporte
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Histórico de Aportes</h3>
+                    </div>
+                    <div class="transaction-list" id="contributionHistory">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gastos Tab -->
+            <div class="tab-content" id="tab-gastos">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-plus-circle"></i> Registrar Gasto</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Quem pagou?</label>
+                            <select class="form-select" id="gastoUser">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <select class="form-select" id="gastoCategory">
+                                <option value="passagem">✈️ Passagem Aérea</option>
+                                <option value="hotel">🏨 Hotel/Airbnb</option>
+                                <option value="alimentacao">🍔 Alimentação</option>
+                                <option value="locomocao">🚗 Locomoção</option>
+                                <option value="outros">📦 Outros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Valor (R$)</label>
+                            <input type="number" class="form-input" id="gastoAmount" placeholder="0,00" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Subcategoria</label>
+                            <select class="form-select" id="gastoSubcategory">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <input type="text" class="form-input" id="gastoDescription" placeholder="Ex: Passagem ida POA-SP">
+                    </div>
+                    <button class="btn btn-primary" onclick="addExpense()">
+                        <i class="fas fa-plus"></i> Registrar Gasto
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list"></i> Todos os Gastos</h3>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-select" id="filterCategory" onchange="renderExpenses()">
+                            <option value="all">Todas as categorias</option>
+                            <option value="passagem">✈️ Passagem Aérea</option>
+                            <option value="hotel">🏨 Hotel/Airbnb</option>
+                            <option value="alimentacao">🍔 Alimentação</option>
+                            <option value="locomocao">🚗 Locomoção</option>
+                            <option value="outros">📦 Outros</option>
+                        </select>
+                    </div>
+                    <div class="transaction-list" id="expenseHistory">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balanço Tab -->
+            <div class="tab-content" id="tab-balanco">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-balance-scale"></i> Balanço Individual</h3>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+                        Mostra quanto cada pessoa pagou vs. quanto deveria ter pago (divisão igual)
+                    </p>
+                    <div class="balance-grid" id="balanceGrid">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-exchange-alt"></i> Acertos Sugeridos</h3>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+                        Transferências necessárias para equilibrar as contas
+                    </p>
+                    <div id="settlementsGrid">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist Tab -->
+            <div class="tab-content" id="tab-checklist">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-tasks"></i> Checklist da Viagem</h3>
+                    </div>
+                    <div class="add-checklist-form">
+                        <input type="text" class="form-input" id="newChecklistItem" placeholder="Adicionar item..." onkeypress="if(event.key === 'Enter') addChecklistItem()">
+                        <button class="btn btn-primary" onclick="addChecklistItem()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="checklistItems">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Tab -->
+            <div class="tab-content" id="tab-config">
+                <div class="card">
+                    <div class="settings-section">
+                        <div class="settings-title"><i class="fas fa-database"></i> Status do Firebase</div>
+                        <div class="firebase-status" id="firebaseStatusConfig">
+                            <i class="fas fa-circle"></i>
+                            <span>Verificando...</span>
+                        </div>
+                        <button class="btn btn-secondary btn-small" onclick="showSetup()">
+                            <i class="fas fa-cog"></i> Reconfigurar Firebase
+                        </button>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title"><i class="fas fa-calendar"></i> Data do Show</div>
+                        <div class="form-group">
+                            <input type="date" class="form-input" id="concertDate" onchange="updateConcertDate()">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title"><i class="fas fa-bullseye"></i> Meta do Cofre</div>
+                        <div class="form-group">
+                            <input type="number" class="form-input" id="goalAmount" placeholder="10000" step="100" min="0" onchange="updateGoal()">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title"><i class="fas fa-users"></i> Nomes dos Participantes</div>
+                        <div id="userNamesConfig">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveUserNames()" style="margin-top: 15px;">
+                            <i class="fas fa-save"></i> Salvar Nomes
+                        </button>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title"><i class="fas fa-trash"></i> Limpar Dados</div>
+                        <button class="btn btn-danger" onclick="confirmClearData()">
+                            <i class="fas fa-trash"></i> Limpar Todos os Dados
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmTitle">Confirmar</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <p id="confirmMessage" style="margin-bottom: 20px; color: var(--text-muted);"></p>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirmAction()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Mensagem</span>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // ============ DATA STRUCTURE ============
+        const DEFAULT_DATA = {
+            users: [
+                { id: 1, name: 'ARMY 1', emoji: '🐰' },
+                { id: 2, name: 'ARMY 2', emoji: '🐱' },
+                { id: 3, name: 'ARMY 3', emoji: '🐻' },
+                { id: 4, name: 'ARMY 4', emoji: '🐥' }
+            ],
+            contributions: [],
+            expenses: [],
+            checklist: [
+                { id: 'c1', text: 'Documentos (RG/CPF)', checked: false },
+                { id: 'c2', text: 'Passagens compradas', checked: false },
+                { id: 'c3', text: 'Hotel reservado', checked: false },
+                { id: 'c4', text: 'ARMY Bomb carregado', checked: false },
+                { id: 'c5', text: 'Photocard para trocar', checked: false },
+                { id: 'c6', text: 'Roupa do show', checked: false },
+                { id: 'c7', text: 'Carregador portátil', checked: false },
+                { id: 'c8', text: 'Protetor solar', checked: false }
+            ],
+            settings: {
+                concertDate: '2026-06-15',
+                goal: 10000
+            }
+        };
+
+        let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        let currentUser = null;
+        let confirmAction = null;
+        let firebaseApp = null;
+        let database = null;
+        let isConnected = false;
+        let firebaseConfig = {
+            apiKey: "AIzaSyAY6i638NUwlvlw_4_86OooTjw8CLZkVDY",
+            authDomain: "bts-trip-2026.firebaseapp.com",
+            databaseURL: "https://bts-trip-2026-default-rtdb.firebaseio.com",
+            projectId: "bts-trip-2026",
+            storageBucket: "bts-trip-2026.firebasestorage.app",
+            messagingSenderId: "362986547128",
+            appId: "1:362986547128:web:57c6c350fe59285da5914d"
+        };
+
+        const SUBCATEGORIES = {
+            passagem: ['POA → SP (ida)', 'SP → POA (volta)'],
+            hotel: ['Diária 1', 'Diária 2', 'Diária 3', 'Taxa de limpeza'],
+            alimentacao: ['Café da manhã', 'Almoço', 'Jantar', 'Lanche', 'Água', 'Energético', 'Café', 'Refrigerante', 'Outros'],
+            locomocao: ['Uber', '99', 'Táxi', 'Metrô/Ônibus', 'Outros'],
+            outros: ['Ingresso', 'Merchandise', 'Outros']
+        };
+
+        const CATEGORY_ICONS = {
+            passagem: { icon: 'fa-plane', class: 'cat-passagem', emoji: '✈️' },
+            hotel: { icon: 'fa-hotel', class: 'cat-hotel', emoji: '🏨' },
+            alimentacao: { icon: 'fa-utensils', class: 'cat-alimentacao', emoji: '🍔' },
+            locomocao: { icon: 'fa-car', class: 'cat-locomocao', emoji: '🚗' },
+            cofre: { icon: 'fa-piggy-bank', class: 'cat-cofre', emoji: '💰' },
+            outros: { icon: 'fa-box', class: 'cat-outros', emoji: '📦' }
+        };
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', () => {
+            initStars();
+            initTheme();
+            renderLoginScreen(); // Render profiles immediately
+            checkSavedConfig();
+        });
+
+        function initStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = (Math.random() * 3 + 1) + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function initTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.remove('light');
+            } else {
+                document.documentElement.classList.add('light');
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.remove('light');
+                } else {
+                    document.documentElement.classList.add('light');
+                }
+            });
+        }
+
+        // ============ FIREBASE CONFIG ============
+        function checkSavedConfig() {
+            // Always connect to Firebase directly
+            initFirebase();
+        }
+
+        function initFirebase() {
+            try {
+                if (!firebase.apps.length) {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                } else {
+                    firebaseApp = firebase.apps[0];
+                }
+
+                database = firebase.database();
+
+                // Test connection
+                const connectedRef = database.ref('.info/connected');
+                connectedRef.on('value', (snap) => {
+                    if (snap.val() === true) {
+                        isConnected = true;
+                        updateConnectionStatus('connected', 'Conectado ao Firebase');
+                        setupRealtimeListeners();
+                    } else {
+                        isConnected = false;
+                        updateConnectionStatus('disconnected', 'Desconectado');
+                    }
+                });
+
+                showLoginScreen();
+
+            } catch (e) {
+                console.error('Firebase init error:', e);
+                showToast('Erro ao conectar: ' + e.message, 'error');
+                isConnected = false;
+                showLoginScreen();
+                updateConnectionStatus('disconnected', 'Erro na conexão');
+            }
+        }
+
+        function setupRealtimeListeners() {
+            if (!database) return;
+
+            // Listen to all data changes
+            database.ref('tripData').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appData = {
+                        users: data.users || DEFAULT_DATA.users,
+                        contributions: data.contributions ? Object.values(data.contributions) : [],
+                        expenses: data.expenses ? Object.values(data.expenses) : [],
+                        checklist: data.checklist ? Object.values(data.checklist) : DEFAULT_DATA.checklist,
+                        settings: data.settings || DEFAULT_DATA.settings
+                    };
+
+                    if (currentUser) {
+                        // Update current user reference
+                        currentUser = appData.users.find(u => u.id === currentUser.id) || currentUser;
+                        renderAll();
+                        populateUserSelects();
+                    }
+                    renderLoginScreen();
+                }
+
+                // Show sync indicator
+                const indicator = document.getElementById('syncIndicator');
+                if (indicator) {
+                    indicator.classList.add('syncing');
+                    setTimeout(() => indicator.classList.remove('syncing'), 500);
+                }
+            });
+        }
+
+        function syncToFirebase() {
+            if (!database || !isConnected) return;
+
+            const dataToSync = {
+                users: appData.users,
+                contributions: {},
+                expenses: {},
+                checklist: {},
+                settings: appData.settings
+            };
+
+            // Convert arrays to objects with IDs as keys
+            appData.contributions.forEach(c => {
+                dataToSync.contributions[c.id] = c;
+            });
+            appData.expenses.forEach(e => {
+                dataToSync.expenses[e.id] = e;
+            });
+            appData.checklist.forEach(c => {
+                dataToSync.checklist[c.id] = c;
+            });
+
+            database.ref('tripData').set(dataToSync)
+                .catch(err => {
+                    console.error('Sync error:', err);
+                    showToast('Erro ao sincronizar', 'error');
+                });
+        }
+
+        function updateConnectionStatus(status, text) {
+            const configStatus = document.getElementById('firebaseStatusConfig');
+            if (configStatus) {
+                configStatus.className = 'firebase-status ' + (status === 'connected' ? 'connected' : 'disconnected');
+                configStatus.innerHTML = `<i class="fas fa-${status === 'connected' ? 'check-circle' : 'times-circle'}"></i><span>${text}</span>`;
+            }
+        }
+
+        // ============ LOGIN ============
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+            renderLoginScreen();
+        }
+
+        function renderLoginScreen() {
+            const grid = document.getElementById('userGrid');
+            grid.innerHTML = appData.users.map(user => `
+                <div class="user-card" onclick="login(${user.id})">
+                    <div class="user-avatar">${user.emoji}</div>
+                    <div class="user-name">${user.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function login(userId) {
+            currentUser = appData.users.find(u => u.id === userId);
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+
+            document.getElementById('currentUserName').textContent = currentUser.name;
+            document.querySelector('#currentUserDisplay .current-user-avatar').textContent = currentUser.emoji;
+
+            initApp();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            renderLoginScreen();
+        }
+
+        // ============ APP INITIALIZATION ============
+        function initApp() {
+            initTabs();
+            initSubcategoryListener();
+            populateUserSelects();
+            renderAll();
+            startCountdown();
+        }
+
+        function initTabs() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function initSubcategoryListener() {
+            document.getElementById('gastoCategory').addEventListener('change', (e) => {
+                const subcatSelect = document.getElementById('gastoSubcategory');
+                const subcats = SUBCATEGORIES[e.target.value] || [];
+                subcatSelect.innerHTML = '<option value="">Selecione...</option>' +
+                    subcats.map(s => `<option value="${s}">${s}</option>`).join('');
+            });
+            // Trigger initial population
+            document.getElementById('gastoCategory').dispatchEvent(new Event('change'));
+        }
+
+        function populateUserSelects() {
+            const options = appData.users.map(u =>
+                `<option value="${u.id}">${u.emoji} ${u.name}</option>`
+            ).join('');
+
+            const cofreUser = document.getElementById('cofreUser');
+            const gastoUser = document.getElementById('gastoUser');
+
+            if (cofreUser) cofreUser.innerHTML = options;
+            if (gastoUser) gastoUser.innerHTML = options;
+
+            if (currentUser) {
+                if (cofreUser) cofreUser.value = currentUser.id;
+                if (gastoUser) gastoUser.value = currentUser.id;
+            }
+
+            // Config user names
+            const userNamesConfig = document.getElementById('userNamesConfig');
+            if (userNamesConfig) {
+                userNamesConfig.innerHTML = appData.users.map(u => `
+                    <div class="form-group">
+                        <label class="form-label">${u.emoji} Participante ${u.id}</label>
+                        <input type="text" class="form-input" id="userName${u.id}" value="${u.name}">
+                    </div>
+                `).join('');
+            }
+
+            const goalAmount = document.getElementById('goalAmount');
+            const concertDate = document.getElementById('concertDate');
+
+            if (goalAmount) goalAmount.value = appData.settings.goal;
+            if (concertDate) concertDate.value = appData.settings.concertDate;
+
+            updateConcertDateDisplay();
+        }
+
+        // ============ COUNTDOWN ============
+        let countdownInterval;
+
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        function updateCountdown() {
+            const concertDate = new Date(appData.settings.concertDate + 'T20:00:00');
+            const now = new Date();
+            const diff = concertDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('days').textContent = '🎉';
+                document.getElementById('hours').textContent = 'É';
+                document.getElementById('minutes').textContent = 'HOJE';
+                document.getElementById('seconds').textContent = '!';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        function updateConcertDate() {
+            const dateInput = document.getElementById('concertDate');
+            if (dateInput && dateInput.value) {
+                appData.settings.concertDate = dateInput.value;
+                updateConcertDateDisplay();
+                syncToFirebase();
+            }
+        }
+
+        function updateConcertDateDisplay() {
+            const display = document.getElementById('concertDateDisplay');
+            if (display && appData.settings.concertDate) {
+                const date = new Date(appData.settings.concertDate + 'T12:00:00');
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                display.textContent = date.toLocaleDateString('pt-BR', options);
+            }
+        }
+
+        // ============ RENDER FUNCTIONS ============
+        function renderAll() {
+            renderDashboard();
+            renderTreasury();
+            renderContributionHistory();
+            renderExpenses();
+            renderBalance();
+            renderChecklist();
+            updateConcertDateDisplay();
+        }
+
+        function renderDashboard() {
+            const totalCofre = appData.contributions.reduce((sum, c) => sum + c.amount, 0);
+            const totalGastos = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
+            const saldo = totalCofre - totalGastos;
+            const perCapita = saldo / appData.users.length;
+
+            document.getElementById('statCofre').textContent = formatCurrency(totalCofre);
+            document.getElementById('statGastos').textContent = formatCurrency(totalGastos);
+            document.getElementById('statSaldo').textContent = formatCurrency(saldo);
+            document.getElementById('statPerCapita').textContent = formatCurrency(perCapita);
+
+            const categories = {};
+            appData.expenses.forEach(e => {
+                categories[e.category] = (categories[e.category] || 0) + e.amount;
+            });
+
+            const breakdown = document.getElementById('categoryBreakdown');
+            if (Object.keys(categories).length === 0) {
+                breakdown.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Nenhum gasto registrado ainda</p></div>';
+            } else {
+                breakdown.innerHTML = Object.entries(categories).map(([cat, amount]) => {
+                    const catInfo = CATEGORY_ICONS[cat] || CATEGORY_ICONS.outros;
+                    const percentage = totalGastos > 0 ? (amount / totalGastos * 100).toFixed(1) : 0;
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-icon ${catInfo.class}">
+                                <i class="fas ${catInfo.icon}"></i>
+                            </div>
+                            <div class="transaction-info">
+                                <div class="transaction-title">${catInfo.emoji} ${capitalizeFirst(cat)}</div>
+                                <div class="transaction-meta">${percentage}% do total</div>
+                            </div>
+                            <div class="transaction-amount expense">${formatCurrency(amount)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderTreasury() {
+            const totalCofre = appData.contributions.reduce((sum, c) => sum + c.amount, 0);
+            const goal = appData.settings.goal || 10000;
+            const percentage = goal > 0 ? Math.min((totalCofre / goal * 100), 100) : 0;
+
+            document.getElementById('treasuryTotal').textContent = formatCurrency(totalCofre);
+            document.getElementById('treasuryGoal').textContent = formatCurrency(goal);
+            document.getElementById('treasuryProgress').style.width = percentage + '%';
+            document.getElementById('treasuryPercentage').textContent = `${percentage.toFixed(1)}% da meta alcançada`;
+
+            const perUser = {};
+            appData.users.forEach(u => perUser[u.id] = 0);
+            appData.contributions.forEach(c => {
+                if (perUser[c.userId] !== undefined) {
+                    perUser[c.userId] += c.amount;
+                }
+            });
+
+            document.getElementById('contributionGrid').innerHTML = appData.users.map(u => `
+                <div class="contribution-card">
+                    <div class="contribution-avatar">${u.emoji}</div>
+                    <div class="contribution-name">${u.name}</div>
+                    <div class="contribution-amount">${formatCurrency(perUser[u.id] || 0)}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderContributionHistory() {
+            const container = document.getElementById('contributionHistory');
+            const sorted = [...appData.contributions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-piggy-bank"></i><p>Nenhum aporte ainda</p></div>';
+                return;
+            }
+
+            container.innerHTML = sorted.map(c => {
+                const user = appData.users.find(u => u.id === c.userId);
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-icon cat-cofre">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <div class="transaction-info">
+                            <div class="transaction-title">${user ? user.emoji + ' ' + user.name : 'Desconhecido'}</div>
+                            <div class="transaction-meta">${formatDate(c.date)}${c.description ? ' • ' + c.description : ''}</div>
+                        </div>
+                        <div class="transaction-amount income">+${formatCurrency(c.amount)}</div>
+                        <button class="delete-btn" onclick="deleteContribution('${c.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('expenseHistory');
+            const filter = document.getElementById('filterCategory').value;
+            let filtered = [...appData.expenses];
+
+            if (filter !== 'all') {
+                filtered = filtered.filter(e => e.category === filter);
+            }
+
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Nenhum gasto registrado</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(e => {
+                const user = appData.users.find(u => u.id === e.userId);
+                const catInfo = CATEGORY_ICONS[e.category] || CATEGORY_ICONS.outros;
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${catInfo.class}">
+                            <i class="fas ${catInfo.icon}"></i>
+                        </div>
+                        <div class="transaction-info">
+                            <div class="transaction-title">${e.description || capitalizeFirst(e.category)}</div>
+                            <div class="transaction-meta">${user ? user.emoji + ' ' + user.name : ''} • ${formatDate(e.date)}${e.subcategory ? ' • ' + e.subcategory : ''}</div>
+                        </div>
+                        <div class="transaction-amount expense">-${formatCurrency(e.amount)}</div>
+                        <button class="delete-btn" onclick="deleteExpense('${e.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderBalance() {
+            const totalExpenses = appData.expenses.reduce((sum, e) => sum + e.amount, 0);
+            const fairShare = totalExpenses / appData.users.length;
+
+            const perUser = {};
+            appData.users.forEach(u => perUser[u.id] = 0);
+            appData.expenses.forEach(e => {
+                if (perUser[e.userId] !== undefined) {
+                    perUser[e.userId] += e.amount;
+                }
+            });
+
+            const balances = appData.users.map(u => ({
+                ...u,
+                paid: perUser[u.id] || 0,
+                balance: (perUser[u.id] || 0) - fairShare
+            }));
+
+            document.getElementById('balanceGrid').innerHTML = balances.map(b => {
+                const statusClass = b.balance > 1 ? 'positive' : (b.balance < -1 ? 'negative' : 'neutral');
+                const statusText = b.balance > 1 ? 'Tem a receber' : (b.balance < -1 ? 'Deve ao grupo' : 'Equilibrado');
+                return `
+                    <div class="balance-card">
+                        <div class="contribution-avatar">${b.emoji}</div>
+                        <div class="balance-info">
+                            <div style="font-weight: 600;">${b.name}</div>
+                            <div class="balance-status">Pagou: ${formatCurrency(b.paid)} • Cota: ${formatCurrency(fairShare)}</div>
+                        </div>
+                        <div>
+                            <div class="balance-amount ${statusClass}">${b.balance >= 0 ? '+' : ''}${formatCurrency(b.balance)}</div>
+                            <div class="balance-status">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate settlements
+            const debtors = balances.filter(b => b.balance < -1).map(b => ({ ...b, amount: Math.abs(b.balance) }));
+            const creditors = balances.filter(b => b.balance > 1).map(b => ({ ...b, amount: b.balance }));
+
+            const settlements = [];
+            const debtorsCopy = debtors.map(d => ({...d}));
+            const creditorsCopy = creditors.map(c => ({...c}));
+
+            debtorsCopy.forEach(debtor => {
+                creditorsCopy.forEach(creditor => {
+                    if (debtor.amount > 0.01 && creditor.amount > 0.01) {
+                        const amount = Math.min(debtor.amount, creditor.amount);
+                        if (amount > 1) {
+                            settlements.push({
+                                from: debtor,
+                                to: creditor,
+                                amount: amount
+                            });
+                            debtor.amount -= amount;
+                            creditor.amount -= amount;
+                        }
+                    }
+                });
+            });
+
+            const settlementsContainer = document.getElementById('settlementsGrid');
+            if (settlements.length === 0) {
+                settlementsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>Tudo equilibrado! 🎉</p></div>';
+            } else {
+                settlementsContainer.innerHTML = settlements.map(s => `
+                    <div class="transaction-item">
+                        <div class="contribution-avatar">${s.from.emoji}</div>
+                        <div class="transaction-info">
+                            <div class="transaction-title">${s.from.name} → ${s.to.name}</div>
+                            <div class="transaction-meta">Transferência sugerida</div>
+                        </div>
+                        <div class="transaction-amount">${formatCurrency(s.amount)}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklistItems');
+            if (appData.checklist.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>Lista vazia</p></div>';
+                return;
+            }
+
+            container.innerHTML = appData.checklist.map(item => `
+                <div class="checklist-item ${item.checked ? 'checked' : ''}">
+                    <div class="checklist-checkbox ${item.checked ? 'checked' : ''}" onclick="toggleChecklist('${item.id}')">
+                        ${item.checked ? '<i class="fas fa-check"></i>' : ''}
+                    </div>
+                    <span class="checklist-text ${item.checked ? 'checked' : ''}">${item.text}</span>
+                    <button class="delete-btn" onclick="deleteChecklistItem('${item.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ============ ACTIONS ============
+        function addContribution() {
+            const userId = parseInt(document.getElementById('cofreUser').value);
+            const amount = parseFloat(document.getElementById('cofreAmount').value);
+            const description = document.getElementById('cofreDescription').value.trim();
+
+            if (!amount || amount <= 0) {
+                showToast('Digite um valor válido', 'error');
+                return;
+            }
+
+            appData.contributions.push({
+                id: generateId(),
+                userId,
+                amount,
+                description,
+                date: new Date().toISOString()
+            });
+
+            document.getElementById('cofreAmount').value = '';
+            document.getElementById('cofreDescription').value = '';
+
+            syncToFirebase();
+            renderAll();
+            showToast('Aporte adicionado! 💜');
+        }
+
+        function addExpense() {
+            const userId = parseInt(document.getElementById('gastoUser').value);
+            const category = document.getElementById('gastoCategory').value;
+            const subcategory = document.getElementById('gastoSubcategory').value;
+            const amount = parseFloat(document.getElementById('gastoAmount').value);
+            const description = document.getElementById('gastoDescription').value.trim();
+
+            if (!amount || amount <= 0) {
+                showToast('Digite um valor válido', 'error');
+                return;
+            }
+
+            appData.expenses.push({
+                id: generateId(),
+                userId,
+                category,
+                subcategory,
+                amount,
+                description,
+                date: new Date().toISOString()
+            });
+
+            document.getElementById('gastoAmount').value = '';
+            document.getElementById('gastoDescription').value = '';
+
+            syncToFirebase();
+            renderAll();
+            showToast('Gasto registrado!');
+        }
+
+        function deleteContribution(id) {
+            showConfirm('Excluir Aporte', 'Tem certeza que deseja excluir este aporte?', () => {
+                appData.contributions = appData.contributions.filter(c => c.id !== id);
+                syncToFirebase();
+                renderAll();
+                showToast('Aporte excluído');
+            });
+        }
+
+        function deleteExpense(id) {
+            showConfirm('Excluir Gasto', 'Tem certeza que deseja excluir este gasto?', () => {
+                appData.expenses = appData.expenses.filter(e => e.id !== id);
+                syncToFirebase();
+                renderAll();
+                showToast('Gasto excluído');
+            });
+        }
+
+        function addChecklistItem() {
+            const input = document.getElementById('newChecklistItem');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            appData.checklist.push({
+                id: generateId(),
+                text,
+                checked: false
+            });
+
+            input.value = '';
+            syncToFirebase();
+            renderChecklist();
+        }
+
+        function toggleChecklist(id) {
+            const item = appData.checklist.find(i => i.id === id);
+            if (item) {
+                item.checked = !item.checked;
+                syncToFirebase();
+                renderChecklist();
+            }
+        }
+
+        function deleteChecklistItem(id) {
+            appData.checklist = appData.checklist.filter(i => i.id !== id);
+            syncToFirebase();
+            renderChecklist();
+        }
+
+        function updateGoal() {
+            appData.settings.goal = parseFloat(document.getElementById('goalAmount').value) || 10000;
+            syncToFirebase();
+            renderTreasury();
+        }
+
+        function saveUserNames() {
+            appData.users.forEach(u => {
+                const input = document.getElementById('userName' + u.id);
+                if (input) {
+                    u.name = input.value || `ARMY ${u.id}`;
+                }
+            });
+
+            if (currentUser) {
+                currentUser = appData.users.find(u => u.id === currentUser.id);
+                document.getElementById('currentUserName').textContent = currentUser.name;
+            }
+
+            syncToFirebase();
+            populateUserSelects();
+            showToast('Nomes atualizados! 💜');
+        }
+
+        function confirmClearData() {
+            showConfirm('Limpar Dados', 'Tem certeza que deseja apagar TODOS os dados? Esta ação não pode ser desfeita!', () => {
+                appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                syncToFirebase();
+                populateUserSelects();
+                renderAll();
+                showToast('Dados limpos');
+            });
+        }
+
+        // ============ MODAL & TOAST ============
+        function showConfirm(title, message, action) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            confirmAction = action;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmAction = null;
+        }
+
+        function executeConfirmAction() {
+            if (confirmAction) {
+                confirmAction();
+            }
+            closeConfirmModal();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+            document.getElementById('toastMessage').textContent = message;
+
+            toast.className = 'toast ' + type;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ============ UTILITIES ============
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatCurrency(value) {
+            return 'R$ ' + (value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>
