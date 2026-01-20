@@ -4,5 +4,8 @@
 
 Você precisará setar a sua key google aqui:
 
+```
  let firebaseConfig = {
             apiKey: "sua_key-google.aqui",
+
+```
